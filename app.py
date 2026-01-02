@@ -290,9 +290,10 @@ def create_app(config_name='default'):
         if request.method == 'POST':
             data = request.get_json()
             
-            # Generate order number
-            order_count = Order.query.count()
-            order_number = f'ORD{datetime.utcnow().strftime("%Y%m%d")}{order_count + 1:04d}'
+            # Generate order number with better uniqueness
+            import uuid
+            timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+            order_number = f'ORD{timestamp}{uuid.uuid4().hex[:4].upper()}'
             
             order = Order(
                 order_number=order_number,
@@ -317,8 +318,14 @@ def create_app(config_name='default'):
                     order.order_items.append(order_item)
                     total += subtotal
                     
-                    # Update stock
-                    menu_item.stock_quantity -= quantity
+                    # Update stock with check to prevent negative values
+                    if menu_item.stock_quantity >= quantity:
+                        menu_item.stock_quantity -= quantity
+                    else:
+                        return jsonify({
+                            'success': False, 
+                            'error': f'Insufficient stock for {menu_item.name}'
+                        }), 400
             
             order.total_amount = total
             order.set_order_data(data)

@@ -218,6 +218,11 @@ function createChart(ctx, type, data, options = {}) {
 
 // Check user session
 function checkSession() {
+    // Only check if user is active (has interacted recently)
+    if (document.hidden) {
+        return; // Skip check if tab is not visible
+    }
+    
     fetch('/api/check-session')
         .then(response => {
             if (response.status === 401) {
@@ -229,9 +234,16 @@ function checkSession() {
         });
 }
 
-// Periodically check session (every 5 minutes)
+// Periodically check session (every 5 minutes) if page is visible
 if (window.location.pathname !== '/login') {
     setInterval(checkSession, 300000);
+    
+    // Also check when page becomes visible again
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            checkSession();
+        }
+    });
 }
 
 // Handle form validation
