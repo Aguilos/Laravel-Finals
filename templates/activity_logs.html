@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Logs - Coffee Shop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-history"></i> Activity Logs</h1>
+    <p>System audit trail and monitoring</p>
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Action</th>
+                <th>Details</th>
+                <th>IP Address</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.username or 'System' }}</td>
+                <td><span class="badge badge-{{ log.user_type }}">{{ log.user_type }}</span></td>
+                <td><strong>{{ log.action }}</strong></td>
+                <td>{{ log.details or '-' }}</td>
+                <td>{{ log.ip_address or '-' }}</td>
+                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') if log.timestamp else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

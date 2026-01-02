@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}2FA Setup - Coffee Shop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="form-container">
+    {% if user.two_factor_enabled %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        Two-factor authentication is currently <strong>enabled</strong> for your account.
+    </div>
+    
+    <form method="POST" class="form">
+        <input type="hidden" name="action" value="disable">
+        <p>Disabling 2FA will make your account less secure.</p>
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to disable 2FA?')">
+            <i class="fas fa-times"></i> Disable 2FA
+        </button>
+    </form>
+    
+    {% elif setup_step %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.)
+    </div>
+    
+    <div class="qr-code-container">
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+    </div>
+    
+    <div class="secret-key">
+        <p><strong>Or enter this key manually:</strong></p>
+        <code>{{ secret }}</code>
+    </div>
+    
+    <form method="POST" class="form">
+        <input type="hidden" name="action" value="verify">
+        <div class="form-group">
+            <label for="code">Enter the 6-digit code from your app:</label>
+            <input type="text" id="code" name="code" maxlength="6" pattern="[0-9]{6}" required autofocus>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check"></i> Verify and Enable 2FA
+        </button>
+    </form>
+    
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        Two-factor authentication is currently <strong>disabled</strong> for your account.
+    </div>
+    
+    <div class="info-box">
+        <h3>What is Two-Factor Authentication?</h3>
+        <p>Two-factor authentication (2FA) adds an extra layer of security to your account by requiring both your password and a verification code from your phone when logging in.</p>
+        
+        <h4>Benefits:</h4>
+        <ul>
+            <li>Enhanced account security</li>
+            <li>Protection against unauthorized access</li>
+            <li>Peace of mind for sensitive operations</li>
+        </ul>
+    </div>
+    
+    <form method="POST" class="form">
+        <input type="hidden" name="action" value="enable">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-shield-alt"></i> Enable 2FA
+        </button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

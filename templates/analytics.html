@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Coffee Shop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-chart-line"></i> Sales Analytics</h1>
+    <div class="period-selector">
+        <a href="{{ url_for('analytics', period='daily') }}" class="btn btn-sm {% if period == 'daily' %}btn-primary{% else %}btn-secondary{% endif %}">Daily</a>
+        <a href="{{ url_for('analytics', period='weekly') }}" class="btn btn-sm {% if period == 'weekly' %}btn-primary{% else %}btn-secondary{% endif %}">Weekly</a>
+        <a href="{{ url_for('analytics', period='monthly') }}" class="btn btn-sm {% if period == 'monthly' %}btn-primary{% else %}btn-secondary{% endif %}">Monthly</a>
+    </div>
+</div>
+
+<div class="analytics-stats">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #4CAF50;">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-content">
+            <h3>₱{{ "%.2f"|format(total_revenue) }}</h3>
+            <p>Total Revenue</p>
+        </div>
+    </div>
+</div>
+
+<div class="analytics-grid">
+    <div class="chart-container">
+        <h2><i class="fas fa-chart-area"></i> Sales Trend</h2>
+        <canvas id="salesChart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <h2><i class="fas fa-chart-bar"></i> Top Selling Items</h2>
+        <canvas id="topItemsChart"></canvas>
+    </div>
+</div>
+
+<div class="top-items-table">
+    <h2><i class="fas fa-trophy"></i> Top Selling Items Details</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Item</th>
+                <th>Quantity Sold</th>
+                <th>Revenue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in top_items %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><strong>{{ item.name }}</strong></td>
+                <td>{{ item.total_sold }}</td>
+                <td>₱{{ "%.2f"|format(item.total_revenue) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Sales Trend Chart
+const salesData = {{ sales_data|tojson }};
+const salesLabels = salesData.map(d => d.period);
+const salesValues = salesData.map(d => d.total_sales);
+
+const salesCtx = document.getElementById('salesChart').getContext('2d');
+new Chart(salesCtx, {
+    type: 'line',
+    data: {
+        labels: salesLabels,
+        datasets: [{
+            label: 'Sales',
+            data: salesValues,
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '₱' + value.toFixed(2);
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Top Items Chart
+const topItems = {{ top_items|tojson }};
+const itemLabels = topItems.map(item => item.name);
+const itemValues = topItems.map(item => item.total_sold);
+
+const itemsCtx = document.getElementById('topItemsChart').getContext('2d');
+new Chart(itemsCtx, {
+    type: 'bar',
+    data: {
+        labels: itemLabels,
+        datasets: [{
+            label: 'Quantity Sold',
+            data: itemValues,
+            backgroundColor: [
+                '#4CAF50',
+                '#2196F3',
+                '#FF9800',
+                '#F44336',
+                '#9C27B0',
+                '#00BCD4',
+                '#FFEB3B',
+                '#795548',
+                '#607D8B',
+                '#E91E63'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

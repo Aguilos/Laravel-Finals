@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Create Order - Coffee Shop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-plus"></i> Create New Order</h1>
+    <a href="{{ url_for('orders') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="order-creation">
+    <div class="order-form">
+        <h2>Order Details</h2>
+        
+        <div class="form-group">
+            <label for="customer_name">Customer Name</label>
+            <input type="text" id="customer_name" placeholder="Enter customer name">
+        </div>
+        
+        <div class="form-group">
+            <label for="payment_method">Payment Method</label>
+            <select id="payment_method">
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="gcash">GCash</option>
+                <option value="paymaya">PayMaya</option>
+            </select>
+        </div>
+        
+        <h3>Menu Items</h3>
+        <div class="menu-items-grid">
+            {% for item in menu_items %}
+            <div class="menu-item-card" data-item-id="{{ item.id }}" data-item-name="{{ item.name }}" 
+                 data-item-price="{{ item.price }}" onclick="addToOrder(this)">
+                <h4>{{ item.name }}</h4>
+                <p class="price">₱{{ "%.2f"|format(item.price) }}</p>
+                <p class="stock">Stock: {{ item.stock_quantity }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="order-summary">
+        <h2>Order Summary</h2>
+        
+        <div id="orderItems">
+            <p class="empty-message">No items added yet</p>
+        </div>
+        
+        <div class="order-total">
+            <strong>Total:</strong>
+            <span id="orderTotal">₱0.00</span>
+        </div>
+        
+        <button class="btn btn-primary btn-block" onclick="submitOrder()">
+            <i class="fas fa-check"></i> Place Order
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let orderItems = [];
+
+function addToOrder(element) {
+    const itemId = parseInt(element.dataset.itemId);
+    const itemName = element.dataset.itemName;
+    const itemPrice = parseFloat(element.dataset.itemPrice);
+    
+    const existingItem = orderItems.find(item => item.menu_item_id === itemId);
+    
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        orderItems.push({
+            menu_item_id: itemId,
+            name: itemName,
+            price: itemPrice,
+            quantity: 1
+        });
+    }
+    
+    updateOrderSummary();
+}
+
+function removeFromOrder(itemId) {
+    orderItems = orderItems.filter(item => item.menu_item_id !== itemId);
+    updateOrderSummary();
+}
+
+function updateQuantity(itemId, change) {
+    const item = orderItems.find(item => item.menu_item_id === itemId);
+    if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+            removeFromOrder(itemId);
+        } else {
+            updateOrderSummary();
+        }
+    }
+}
+
+function updateOrderSummary() {
+    const container = document.getElementById('orderItems');
+    
+    if (orderItems.length === 0) {
+        container.innerHTML = '<p class="empty-message">No items added yet</p>';
+        document.getElementById('orderTotal').textContent = '₱0.00';
+        return;
+    }
+    
+    let html = '';
+    let total = 0;
+    
+    orderItems.forEach(item => {
+        const subtotal = item.price * item.quantity;
+        total += subtotal;
+        
+        html += `
+            <div class="order-item">
+                <div class="item-info">
+                    <strong>${item.name}</strong>
+                    <span>₱${item.price.toFixed(2)}</span>
+                </div>
+                <div class="item-controls">
+                    <button class="btn-qty" onclick="updateQuantity(${item.menu_item_id}, -1)">-</button>
+                    <span class="qty">${item.quantity}</span>
+                    <button class="btn-qty" onclick="updateQuantity(${item.menu_item_id}, 1)">+</button>
+                    <button class="btn-remove" onclick="removeFromOrder(${item.menu_item_id})">×</button>
+                </div>
+                <div class="item-subtotal">₱${subtotal.toFixed(2)}</div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    document.getElementById('orderTotal').textContent = `₱${total.toFixed(2)}`;
+}
+
+function submitOrder() {
+    if (orderItems.length === 0) {
+        alert('Please add items to the order.');
+        return;
+    }
+    
+    const customerName = document.getElementById('customer_name').value || 'Walk-in Customer';
+    const paymentMethod = document.getElementById('payment_method').value;
+    
+    const orderData = {
+        customer_name: customerName,
+        payment_method: paymentMethod,
+        items: orderItems
+    };
+    
+    fetch('/orders/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Order ${data.order_number} created successfully!`);
+            window.location.href = '/orders';
+        } else {
+            alert('Failed to create order.');
+        }
+    })
+    .catch(error => {
+        alert('An error occurred.');
+        console.error('Error:', error);
+    });
+}
+</script>
+{% endblock %}
