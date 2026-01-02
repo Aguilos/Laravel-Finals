@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Orders - Coffee Shop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-receipt"></i> Orders</h1>
+    <a href="{{ url_for('create_order') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Order
+    </a>
+</div>
+
+<div class="filter-bar">
+    <a href="{{ url_for('orders') }}" class="filter-btn {% if status_filter == 'all' %}active{% endif %}">All</a>
+    <a href="{{ url_for('orders', status='pending') }}" class="filter-btn {% if status_filter == 'pending' %}active{% endif %}">Pending</a>
+    <a href="{{ url_for('orders', status='preparing') }}" class="filter-btn {% if status_filter == 'preparing' %}active{% endif %}">Preparing</a>
+    <a href="{{ url_for('orders', status='ready') }}" class="filter-btn {% if status_filter == 'ready' %}active{% endif %}">Ready</a>
+    <a href="{{ url_for('orders', status='completed') }}" class="filter-btn {% if status_filter == 'completed' %}active{% endif %}">Completed</a>
+    <a href="{{ url_for('orders', status='cancelled') }}" class="filter-btn {% if status_filter == 'cancelled' %}active{% endif %}">Cancelled</a>
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ order.customer_name }}</td>
+                <td>{{ order.order_items|length }} items</td>
+                <td>₱{{ "%.2f"|format(order.total_amount) }}</td>
+                <td><span class="badge">{{ order.payment_method }}</span></td>
+                <td>
+                    <select class="status-select" data-order-id="{{ order.id }}" onchange="updateOrderStatus(this)">
+                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="preparing" {% if order.status == 'preparing' %}selected{% endif %}>Preparing</option>
+                        <option value="ready" {% if order.status == 'ready' %}selected{% endif %}>Ready</option>
+                        <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </td>
+                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <button class="btn btn-sm btn-secondary" onclick="viewOrderDetails({{ order.id }})">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Order Details Modal -->
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeOrderModal()">&times;</span>
+        <div id="orderDetails"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateOrderStatus(select) {
+    const orderId = select.dataset.orderId;
+    const status = select.value;
+    
+    fetch(`/orders/${orderId}/update-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Order status updated successfully!', 'success');
+        } else {
+            showAlert('Failed to update order status.', 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred.', 'error');
+        console.error('Error:', error);
+    });
+}
+
+function viewOrderDetails(orderId) {
+    // This would fetch and display order details in the modal
+    // Implementation depends on your specific requirements
+    alert('View order details for order #' + orderId);
+}
+
+function closeOrderModal() {
+    document.getElementById('orderModal').style.display = 'none';
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        ${message}
+        <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.page-header'));
+    
+    setTimeout(() => alertDiv.remove(), 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Management - Coffee Shop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-users"></i> Staff Management</h1>
+    <a href="{{ url_for('add_staff') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> Add Staff
+    </a>
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>2FA</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff in staff_list %}
+            <tr>
+                <td>{{ staff.id }}</td>
+                <td>{{ staff.username }}</td>
+                <td>{{ staff.email }}</td>
+                <td>
+                    <select class="status-select" data-user-id="{{ staff.id }}" onchange="updateStaffStatus(this)">
+                        <option value="active" {% if staff.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="pending" {% if staff.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="inactive" {% if staff.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </td>
+                <td>
+                    {% if staff.two_factor_enabled %}
+                    <span class="badge badge-success"><i class="fas fa-shield-alt"></i> Enabled</span>
+                    {% else %}
+                    <span class="badge badge-secondary">Disabled</span>
+                    {% endif %}
+                </td>
+                <td>{{ staff.created_at.strftime('%Y-%m-%d') if staff.created_at else 'N/A' }}</td>
+                <td>
+                    <button class="btn btn-sm btn-secondary" onclick="viewStaffDetails({{ staff.id }})">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStaffStatus(select) {
+    const userId = select.dataset.userId;
+    const status = select.value;
+    
+    fetch(`/staff/${userId}/update-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Staff status updated successfully!', 'success');
+        } else {
+            showAlert('Failed to update staff status.', 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred.', 'error');
+        console.error('Error:', error);
+    });
+}
+
+function viewStaffDetails(userId) {
+    alert('View staff details for user #' + userId);
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        ${message}
+        <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.page-header'));
+    
+    setTimeout(() => alertDiv.remove(), 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Suppliers - Coffee Shop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-truck"></i> Suppliers Management</h1>
+    <a href="{{ url_for('add_supplier') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Supplier
+    </a>
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Contact Person</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+                <td>{{ supplier.id }}</td>
+                <td><strong>{{ supplier.name }}</strong></td>
+                <td>{{ supplier.contact_person or '-' }}</td>
+                <td>{{ supplier.email or '-' }}</td>
+                <td>{{ supplier.phone or '-' }}</td>
+                <td>{{ supplier.address or '-' }}</td>
+                <td>
+                    <button class="btn btn-sm btn-secondary">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
