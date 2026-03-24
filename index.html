@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causal Loop Diagram Tool</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== Header ===================== -->
+<header class="app-header">
+    <div class="header-content">
+        <h1>Causal Loop Diagram (CLD) Tool</h1>
+        <p>
+            Build and classify feedback loops —
+            <span class="badge reinforcing">R Reinforcing</span>
+            &amp;
+            <span class="badge balancing">B Balancing</span>
+        </p>
+    </div>
+</header>
+
+<!-- ===================== Main ======================= -->
+<main class="app-main">
+
+    <!-- ---- Left panel: inputs ---- -->
+    <aside class="panel-left">
+
+        <!-- Variables -->
+        <div class="card">
+            <h2>Variables</h2>
+            <div class="var-form">
+                <div class="input-row">
+                    <input type="text" id="varName"
+                           placeholder="e.g., Population" maxlength="30"
+                           aria-label="Variable name">
+                    <button id="btnAddVar" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+            <ul id="varList" class="item-list"></ul>
+        </div>
+
+        <!-- Causal Links -->
+        <div class="card">
+            <h2>Causal Links</h2>
+            <div class="link-form">
+                <select id="linkFrom" aria-label="From variable">
+                    <option value="">From…</option>
+                </select>
+                <select id="linkTo" aria-label="To variable">
+                    <option value="">To…</option>
+                </select>
+                <div class="sign-group" role="radiogroup" aria-label="Causal link sign">
+                    <label class="sign-label positive">
+                        <input type="radio" name="sign" value="+" checked>
+                        <span>+ Positive</span>
+                    </label>
+                    <label class="sign-label negative">
+                        <input type="radio" name="sign" value="-">
+                        <span>− Negative</span>
+                    </label>
+                </div>
+                <button id="btnAddLink" class="btn btn-primary">Add Link</button>
+            </div>
+            <ul id="linkList" class="item-list"></ul>
+        </div>
+
+        <!-- Actions -->
+        <div class="card actions-card">
+            <button id="btnAnalyze" class="btn btn-analyze">Analyze Loops</button>
+            <button id="btnSample"  class="btn btn-secondary">Load Sample Data</button>
+            <button id="btnClear"   class="btn btn-danger">Clear All</button>
+        </div>
+
+    </aside>
+
+    <!-- ---- Right panel: diagram + results ---- -->
+    <section class="panel-right">
+
+        <div class="card diagram-card">
+            <h2>Diagram</h2>
+            <div class="svg-container">
+                <svg id="diagram" xmlns="http://www.w3.org/2000/svg"
+                     role="img" aria-label="Causal loop diagram">
+                    <text x="50%" y="50%" text-anchor="middle"
+                          class="svg-placeholder">Add variables to see the diagram</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="card results-card">
+            <h2>Loop Analysis</h2>
+            <div id="results">
+                <p class="placeholder-text">
+                    Add variables and causal links, then click
+                    <strong>Analyze Loops</strong>.
+                </p>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>

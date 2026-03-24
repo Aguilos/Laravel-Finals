@@ -1,0 +1,332 @@
+/* ============================================================
+   Causal Loop Diagram Tool — Stylesheet
+   ============================================================ */
+
+/* ---------- Reset & Base ----------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f0f4f8;
+    color: #1a202c;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------- Header ----------------------------------------- */
+.app-header {
+    background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.header-content h1  { font-size: 1.4rem; font-weight: 700; }
+.header-content p   { font-size: .875rem; margin-top: .25rem; opacity: .9; }
+
+.badge {
+    display: inline-block;
+    padding: .15rem .5rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+}
+.badge.reinforcing { background: #bfdbfe; color: #1d4ed8; }
+.badge.balancing   { background: #fed7aa; color: #c2410c; }
+
+/* ---------- Two-column layout ------------------------------ */
+.app-main {
+    display: grid;
+    grid-template-columns: 310px 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    flex: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .app-main { grid-template-columns: 1fr; }
+}
+
+/* ---------- Cards ------------------------------------------ */
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    margin-bottom: 1rem;
+}
+.card h2 {
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #6b7280;
+    margin-bottom: .75rem;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* ---------- Forms ------------------------------------------ */
+.var-form {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    margin-bottom: .75rem;
+}
+.var-form .input-row {
+    display: flex;
+    gap: .4rem;
+}
+.var-form input {
+    flex: 1;
+    padding: .45rem .75rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: .88rem;
+    outline: none;
+    transition: border-color .2s;
+}
+.var-form input:focus { border-color: #6366f1; }
+
+.link-form {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    margin-bottom: .75rem;
+}
+.link-form select {
+    padding: .45rem .75rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: .88rem;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .2s;
+}
+.link-form select:focus { border-color: #6366f1; }
+
+/* Sign radio group */
+.sign-group {
+    display: flex;
+    gap: .6rem;
+    padding: .35rem 0;
+}
+.sign-label {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    cursor: pointer;
+    font-size: .88rem;
+    font-weight: 500;
+    padding: .35rem .7rem;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all .18s;
+    user-select: none;
+}
+.sign-label:has(input:checked)  { border-color: #6366f1; background: #eef2ff; }
+.sign-label.positive             { color: #1d4ed8; }
+.sign-label.negative             { color: #dc2626; }
+.sign-label input[type=radio]    { accent-color: #6366f1; }
+
+/* ---------- Buttons ---------------------------------------- */
+.btn {
+    padding: .45rem .9rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: .88rem;
+    font-weight: 600;
+    transition: background .18s, transform .12s, box-shadow .18s;
+}
+.btn-primary   { background: #6366f1; color: #fff; }
+.btn-primary:hover { background: #4f46e5; }
+.btn-secondary { background: #e5e7eb; color: #374151; }
+.btn-secondary:hover { background: #d1d5db; }
+.btn-danger    { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #fecaca; }
+
+.btn-analyze {
+    width: 100%;
+    padding: .7rem;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    font-size: .95rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(99,102,241,.3);
+}
+.btn-analyze:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(99,102,241,.4);
+}
+
+.actions-card {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+}
+
+/* ---------- Item lists ------------------------------------- */
+.item-list {
+    list-style: none;
+    max-height: 160px;
+    overflow-y: auto;
+}
+.item-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .35rem .4rem;
+    border-radius: 6px;
+    font-size: .84rem;
+    transition: background .12s;
+}
+.item-list li:hover  { background: #f9fafb; }
+.item-list .item-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.list-empty {
+    color: #9ca3af;
+    font-size: .82rem;
+    font-style: italic;
+}
+
+.btn-remove {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: .85rem;
+    padding: .1rem .35rem;
+    border-radius: 4px;
+    transition: color .15s, background .15s;
+    line-height: 1;
+}
+.btn-remove:hover { color: #ef4444; background: #fee2e2; }
+
+/* Link sign colours in list */
+.link-sign     { font-family: monospace; font-weight: 700; margin: 0 .2rem; }
+.link-sign.pos { color: #2563eb; }
+.link-sign.neg { color: #dc2626; }
+
+/* ---------- Diagram SVG ------------------------------------ */
+.diagram-card    { margin-bottom: 1rem; }
+.svg-container   {
+    width: 100%;
+    border-radius: 8px;
+    background: #f8fafc;
+    overflow: hidden;
+}
+#diagram         { display: block; width: 100%; height: 380px; }
+.svg-placeholder { fill: #9ca3af; font-size: 14px; }
+
+/* ---------- Results ---------------------------------------- */
+.placeholder-text { color: #9ca3af; font-size: .88rem; }
+
+.result-summary {
+    font-size: .88rem;
+    color: #374151;
+    margin-bottom: .75rem;
+    font-weight: 600;
+}
+
+.msg {
+    padding: .65rem .9rem;
+    border-radius: 8px;
+    font-size: .88rem;
+}
+.msg-warning {
+    background: #fffbeb;
+    color: #92400e;
+    border-left: 3px solid #f59e0b;
+}
+.msg-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border-left: 3px solid #ef4444;
+}
+
+/* ---------- Loop Cards ------------------------------------- */
+.loop-card {
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: .75rem;
+    border: 2px solid transparent;
+    animation: fadeInUp .25s ease;
+}
+.loop-card.reinforcing { background: #eff6ff; border-color: #93c5fd; }
+.loop-card.balancing   { background: #fff7ed; border-color: #fdba74; }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.loop-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+}
+.loop-type-badge {
+    display: inline-block;
+    padding: .2rem .65rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    color: #fff;
+}
+.loop-card.reinforcing .loop-type-badge { background: #2563eb; }
+.loop-card.balancing   .loop-type-badge { background: #ea580c; }
+
+.loop-number { font-size: .78rem; color: #9ca3af; font-weight: 600; }
+
+.loop-path {
+    font-size: .82rem;
+    background: #fff;
+    padding: .45rem .7rem;
+    border-radius: 6px;
+    margin-bottom: .5rem;
+    line-height: 1.6;
+    word-break: break-word;
+}
+/* Arrow sign colours inside the path */
+.arrow-sign     { font-family: monospace; font-weight: 700; }
+.arrow-sign.pos { color: #2563eb; }
+.arrow-sign.neg { color: #dc2626; }
+
+.loop-meta {
+    font-size: .82rem;
+    color: #4b5563;
+    margin-bottom: .5rem;
+}
+.loop-meta span { display: block; margin-bottom: .2rem; line-height: 1.5; }
+
+.tag-even  { color: #4f46e5; font-weight: 700; }
+.tag-odd   { color: #c2410c; font-weight: 700; }
+.tag-valid   { color: #15803d; font-weight: 600; }
+.tag-invalid { color: #dc2626; font-weight: 600; }
+
+.loop-explanation {
+    font-size: .8rem;
+    color: #6b7280;
+    line-height: 1.5;
+    padding-top: .45rem;
+    border-top: 1px solid rgba(0,0,0,.06);
+}
+.loop-explanation strong { color: #374151; }
+
+/* ---------- Inline field errors ---------------------------- */
+.field-error {
+    font-size: .8rem;
+    color: #dc2626;
+    margin-top: .15rem;
+}
